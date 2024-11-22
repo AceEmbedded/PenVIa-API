@@ -8,6 +8,8 @@ import os
 import re
 from db import db, init_app
 from models import User
+from budget_routes import budget_bp
+from extensions import Mail
 
 app = Flask(__name__)
 load_dotenv()
@@ -17,6 +19,17 @@ init_app(app)
 jwt = JWTManager(app)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 migrate = Migrate(app,db)
+
+app.register_blueprint(budget_bp, url_prefix='/api/v1')
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use your mail provider's SMTP
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = 'penviaapp@gmail.com'
+
+mail = Mail(app)
 
 def is_password_valid(password, first_name, last_name, email):
     # Check length
